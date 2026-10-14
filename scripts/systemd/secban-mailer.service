@@ -1,0 +1,22 @@
+[Unit]
+Description=SecBan Mailer Service
+After=network.target
+ConditionPathExists=/usr/sbin/secban-mailer
+
+[Service]
+User=secban-mailer
+Group=secban
+Type=exec
+ExecStart=/usr/sbin/secban-mailer
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/run/secban
+
+[Install]
+WantedBy=multi-user.target
+Alias=secban-mailer.service

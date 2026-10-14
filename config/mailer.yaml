@@ -1,0 +1,11 @@
+from: example@example.com
+log_level: debug
+smtp:
+  host: localhost:1025
+  password: ""
+  username: ""
+socket_path: "/tmp/mailer.sock"
+template_file: ""
+to:
+  - recipient@example.com
+  - anotherrecipient@example.com
