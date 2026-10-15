@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/rs/zerolog"
+	gomail "github.com/wneessen/go-mail"
 	"gopkg.in/yaml.v2"
 )
 
@@ -16,20 +17,30 @@ const (
 	fileName = "mailer.yaml"
 )
 
-type SMTPConfig struct {
+type ParsedSMTPConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+	TLS      string `yaml:"tls"`
 }
 
 type ParsedConfig struct {
-	From         string     `yaml:"from"`
-	SMTP         SMTPConfig `yaml:"smtp"`
-	To           []string   `yaml:"to"`
-	LogLevel     string     `yaml:"log_level"`
-	TemplateFile string     `yaml:"template_file"`
-	SocketPath   string     `yaml:"socket_path"`
+	From         string           `yaml:"from"`
+	SMTP         ParsedSMTPConfig `yaml:"smtp"`
+	To           []string         `yaml:"to"`
+	LogLevel     string           `yaml:"log_level"`
+	TemplateFile string           `yaml:"template_file"`
+	SocketPath   string           `yaml:"socket_path"`
+}
+
+type SMTPConfig struct {
+	Host      string
+	Port      int
+	Username  string
+	Password  string
+	TLS       string
+	TLSPolicy gomail.TLSPolicy
 }
 
 type Config struct {
@@ -47,40 +58,52 @@ func LoadConfig(configDir string) (*Config, error) {
 		return nil, parseErr
 	}
 
-	config := &Config{
-		From:       parsed.From,
-		SMTP:       normalizeSMTPConfig(parsed.SMTP),
-		To:         parsed.To,
-		SocketPath: parsed.SocketPath,
-	}
-
-	if os.Getenv("SECBAN_MAILER_SMTP_USERNAME") != "" {
-		config.SMTP.Username = os.Getenv("SECBAN_MAILER_SMTP_USERNAME")
-	}
-
-	if os.Getenv("SECBAN_MAILER_SMTP_PASSWORD") != "" {
-		config.SMTP.Password = os.Getenv("SECBAN_MAILER_SMTP_PASSWORD")
-	}
+	smtpCfg := normalizeSMTPConfig(parsed.SMTP)
+	applyEnvOverrides(&smtpCfg)
 
 	logLevel, logLevelErr := parseLogLevel(parsed.LogLevel)
 	if logLevelErr != nil {
 		return nil, logLevelErr
 	}
 
-	config.LogLevel = logLevel
-
-	if parsed.TemplateFile != "" {
-		templatePath := path.Join(configDir, parsed.TemplateFile)
-
-		tmpl, tmplErr := template.ParseFiles(templatePath)
-		if tmplErr != nil {
-			return nil, tmplErr
-		}
-
-		config.Template = *tmpl
+	tmpl, tmplErr := loadTemplate(configDir, parsed.TemplateFile)
+	if tmplErr != nil {
+		return nil, tmplErr
 	}
 
-	return config, nil
+	return &Config{
+		From:       parsed.From,
+		SMTP:       smtpCfg,
+		To:         parsed.To,
+		SocketPath: parsed.SocketPath,
+		LogLevel:   logLevel,
+		Template:   tmpl,
+	}, nil
+}
+
+func applyEnvOverrides(cfg *SMTPConfig) {
+	if username := os.Getenv("SECBAN_MAILER_SMTP_USERNAME"); username != "" {
+		cfg.Username = username
+	}
+
+	if password := os.Getenv("SECBAN_MAILER_SMTP_PASSWORD"); password != "" {
+		cfg.Password = password
+	}
+}
+
+func loadTemplate(configDir string, templateFile string) (template.Template, error) {
+	if templateFile == "" {
+		return template.Template{}, nil
+	}
+
+	templatePath := path.Join(configDir, templateFile)
+
+	tmpl, tmplErr := template.ParseFiles(templatePath)
+	if tmplErr != nil {
+		return template.Template{}, tmplErr
+	}
+
+	return *tmpl, nil
 }
 
 func parseConfig(configDir string) (*ParsedConfig, error) {
@@ -101,25 +124,43 @@ func parseConfig(configDir string) (*ParsedConfig, error) {
 	return &parsed, nil
 }
 
-func normalizeSMTPConfig(cfg SMTPConfig) SMTPConfig {
+func normalizeSMTPConfig(parsed ParsedSMTPConfig) SMTPConfig {
+	cfg := SMTPConfig{
+		Host:      parsed.Host,
+		Port:      parsed.Port,
+		Username:  parsed.Username,
+		Password:  parsed.Password,
+		TLS:       parsed.TLS,
+		TLSPolicy: parseTLSPolicy(parsed.TLS),
+	}
+
 	if cfg.Port != 0 || strings.TrimSpace(cfg.Host) == "" {
 		return cfg
 	}
 
-	host, port, err := net.SplitHostPort(strings.TrimSpace(cfg.Host))
-	if err != nil {
-		return cfg
+	if strings.Contains(strings.TrimSpace(cfg.Host), ":") {
+		host, port, splitErr := net.SplitHostPort(strings.TrimSpace(cfg.Host))
+		if splitErr == nil {
+			parsedPort, parsePortErr := strconv.Atoi(port)
+			if parsePortErr == nil {
+				cfg.Host = host
+				cfg.Port = parsedPort
+			}
+		}
 	}
-
-	parsedPort, parsePortErr := strconv.Atoi(port)
-	if parsePortErr != nil {
-		return cfg
-	}
-
-	cfg.Host = host
-	cfg.Port = parsedPort
 
 	return cfg
+}
+
+func parseTLSPolicy(raw string) gomail.TLSPolicy {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "notls", "notsl":
+		return gomail.NoTLS
+	case "mandatory":
+		return gomail.TLSMandatory
+	default:
+		return gomail.TLSOpportunistic
+	}
 }
 
 func parseLogLevel(logLevel string) (zerolog.Level, error) {

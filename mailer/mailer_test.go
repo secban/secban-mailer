@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	gomail "github.com/wneessen/go-mail"
 	"gitlab.com/thequietbot/secban/secban-agent/entry"
 	"gitlab.com/thequietbot/secban/secban-agent/ipc"
 	"gitlab.com/thequietbot/secban/secban-agent/offender"
@@ -185,5 +186,68 @@ func assertSMTPConfig(t *testing.T, cfg *config.Config) {
 
 	if len(cfg.To) != 2 || cfg.To[0] != "user@example.com" || cfg.To[1] != "ops@example.com" {
 		t.Fatalf("unexpected recipients: %#v", cfg.To)
+	}
+
+	if cfg.SMTP.TLSPolicy != gomail.TLSOpportunistic {
+		t.Fatalf("smtp tls policy = %v, want %v", cfg.SMTP.TLSPolicy, gomail.TLSOpportunistic)
+	}
+}
+
+func TestLoadConfigParsesTLSPolicies(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		yaml       string
+		wantPolicy gomail.TLSPolicy
+	}{
+		{name: "notls", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: notls\n", wantPolicy: gomail.NoTLS},
+		{name: "notsl", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: notsl\n", wantPolicy: gomail.NoTLS},
+		{name: "mandatory", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: mandatory\n", wantPolicy: gomail.TLSMandatory},
+		{name: "opportunistic", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: opportunistic\n", wantPolicy: gomail.TLSOpportunistic},
+		{name: "empty defaults to opportunistic", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n", wantPolicy: gomail.TLSOpportunistic},
+		{name: "unknown defaults to opportunistic", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: something_else\n", wantPolicy: gomail.TLSOpportunistic},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assertLoadConfigTLSPolicy(t, tt.yaml, tt.wantPolicy)
+		})
+	}
+}
+
+func assertLoadConfigTLSPolicy(t *testing.T, yamlContent string, wantPolicy gomail.TLSPolicy) {
+	t.Helper()
+
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "mailer.yaml")
+
+	writeErr := os.WriteFile(configPath, []byte(yamlContent), 0o600)
+	if writeErr != nil {
+		t.Fatalf("write config: %v", writeErr)
+	}
+
+	cfg, loadErr := config.LoadConfig(dir)
+	if loadErr != nil {
+		t.Fatalf("unexpected error: %v", loadErr)
+	}
+
+	if cfg.SMTP.TLSPolicy != wantPolicy {
+		t.Fatalf("TLSPolicy = %v, want %v", cfg.SMTP.TLSPolicy, wantPolicy)
+	}
+}
+
+func TestMailerNewStoresTLSPolicy(t *testing.T) {
+	t.Parallel()
+
+	mailerInstance := mailer.New(mailer.MailerConfig{
+		SMTP: mailer.SMTPConfig{
+			TLSPolicy: gomail.TLSOpportunistic,
+		},
+	})
+	if mailerInstance.SMTP.TLSPolicy != gomail.TLSOpportunistic {
+		t.Fatalf("TLSPolicy = %v, want %v", mailerInstance.SMTP.TLSPolicy, gomail.TLSOpportunistic)
 	}
 }

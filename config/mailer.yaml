@@ -4,6 +4,8 @@ smtp:
   host: localhost:1025
   password: ""
   username: ""
+  # TLS policy: notsl, opportunistic, mandatory (default: opportunistic).
+  tls: notsl
 socket_path: "/tmp/mailer.sock"
 template_file: ""
 to:

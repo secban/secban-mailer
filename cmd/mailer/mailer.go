@@ -48,10 +48,11 @@ func initMailer(conf *config.Config) {
 	mailer.Init(mailer.MailerConfig{
 		Template: conf.Template,
 		SMTP: mailer.SMTPConfig{
-			Host:     conf.SMTP.Host,
-			Port:     conf.SMTP.Port,
-			Username: conf.SMTP.Username,
-			Password: conf.SMTP.Password,
+			Host:      conf.SMTP.Host,
+			Port:      conf.SMTP.Port,
+			Username:  conf.SMTP.Username,
+			Password:  conf.SMTP.Password,
+			TLSPolicy: conf.SMTP.TLSPolicy,
 		},
 		From: conf.From,
 		To:   conf.To,

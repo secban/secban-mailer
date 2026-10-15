@@ -16,11 +16,14 @@ var bodyTemplate string
 
 var mailerInstance *Mailer //nolint: gochecknoglobals
 
+var ErrMailerNotInitialized = errors.New("mailer not initialized")
+
 type SMTPConfig struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
+	Host      string
+	Port      int
+	Username  string
+	Password  string
+	TLSPolicy gomail.TLSPolicy
 }
 
 type Mailer struct {
@@ -80,7 +83,7 @@ func (m *Mailer) Send(ctx context.Context, msg ipc.IPCMessage) error {
 	}
 
 	clientOptions := []gomail.Option{
-		gomail.WithTLSPolicy(gomail.NoTLS),
+		gomail.WithTLSPolicy(m.SMTP.TLSPolicy),
 	}
 	if m.SMTP.Username != "" || m.SMTP.Password != "" {
 		clientOptions = append(clientOptions,
@@ -109,7 +112,7 @@ func (m *Mailer) Send(ctx context.Context, msg ipc.IPCMessage) error {
 
 func Send(ctx context.Context, msg ipc.IPCMessage) error {
 	if mailerInstance == nil {
-		return errors.New("mailer not initialized")
+		return ErrMailerNotInitialized
 	}
 
 	return mailerInstance.Send(ctx, msg)

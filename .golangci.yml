@@ -2,14 +2,10 @@ linters:
   default: all
   disable:
     - depguard # We have few imports.
-    - err113 # Too much refactoring. To be revisited.
     - exhaustruct # We do not want to enforce exhaustive struct checks.
     - exhaustruct_v5
-    - goconst # A bit too eager.
     - gomodguard # deprecated
     - lll # Line length lint, not able to ignore functions declarations.
-    - nlreturn # Newline return lint, not to my taste.
-    - prealloc # Readability trade-off, not enforcing preallocation.
     - tagliatelle # We do not want camel case for json.
     - wrapcheck # To revisit later.
     - wsl # Replaced by wsl_v5
