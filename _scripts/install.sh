@@ -25,6 +25,10 @@ fi
 cp "./secban-mailer" "/usr/sbin/"
 chmod +x "/usr/sbin/secban-mailer"
 
+# Install the emailcheck binary.
+cp "./secban-mailer-emailcheck" "/usr/bin/"
+chmod +x "/usr/bin/secban-mailer-emailcheck"
+
 # Install the example mailer configuration.
 mkdir -p /etc/secban
 if [ ! -f /etc/secban/mailer.yaml ]; then
@@ -32,5 +36,11 @@ if [ ! -f /etc/secban/mailer.yaml ]; then
 fi
 
 # Install the systemd service file for the secban-mailer.
-cp "./secban-mailer.service" "/etc/systemd/system/secban-mailer.service"
-systemctl daemon-reload
+if [ ! -f /etc/systemd/system/secban-mailer.service ]; then
+    cp "./secban-mailer.service" "/etc/systemd/system/secban-mailer.service"
+fi
+
+if [ ! -z "$(which systemctl)" ]; then
+    systemctl daemon-reload
+    systemctl enable secban-mailer.service
+fi
