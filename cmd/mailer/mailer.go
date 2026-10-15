@@ -6,9 +6,9 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gitlab.com/thequietbot/secban/secban-agent/ipc"
-	"gitlab.com/thequietbot/secban/secban-mailer/config"
-	"gitlab.com/thequietbot/secban/secban-mailer/mailer"
+	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-mailer/config"
+	"gitlab.com/secban/secban-mailer/mailer"
 )
 
 func main() {

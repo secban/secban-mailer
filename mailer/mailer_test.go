@@ -9,11 +9,11 @@ import (
 	"time"
 
 	gomail "github.com/wneessen/go-mail"
-	"gitlab.com/thequietbot/secban/secban-agent/entry"
-	"gitlab.com/thequietbot/secban/secban-agent/ipc"
-	"gitlab.com/thequietbot/secban/secban-agent/offender"
-	"gitlab.com/thequietbot/secban/secban-mailer/config"
-	mailer "gitlab.com/thequietbot/secban/secban-mailer/mailer"
+	"gitlab.com/secban/secban-agent/entry"
+	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/offender"
+	"gitlab.com/secban/secban-mailer/config"
+	mailer "gitlab.com/secban/secban-mailer/mailer"
 )
 
 func TestBodyTemplateExecutesForIPCMessage(t *testing.T) {

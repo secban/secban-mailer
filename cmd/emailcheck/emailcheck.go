@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"gitlab.com/thequietbot/secban/secban-agent/entry"
-	"gitlab.com/thequietbot/secban/secban-agent/ipc"
-	"gitlab.com/thequietbot/secban/secban-agent/offender"
-	"gitlab.com/thequietbot/secban/secban-mailer/config"
-	"gitlab.com/thequietbot/secban/secban-mailer/mailer"
+	"gitlab.com/secban/secban-agent/entry"
+	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/offender"
+	"gitlab.com/secban/secban-mailer/config"
+	"gitlab.com/secban/secban-mailer/mailer"
 )
 
 func main() {

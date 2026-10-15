@@ -8,7 +8,7 @@ import (
 	"text/template"
 
 	gomail "github.com/wneessen/go-mail"
-	"gitlab.com/thequietbot/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/ipc"
 )
 
 //go:embed body.tpl
