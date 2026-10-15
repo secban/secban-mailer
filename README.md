@@ -1,6 +1,6 @@
 # SecBan Mailer
 
-SecBan Mailer is an alert dispatch daemon for the SecBan framework. It listens on a UNIX domain socket for IPC notification messages sent by the SecBan agent upon IP ban events and delivers formatted notification emails via SMTP.
+SecBan Mailer is an alert dispatch daemon for the [SecBan framework](https://gitlab.com/secban). It listens on a UNIX domain socket for IPC notification messages sent by the SecBan agent upon IP ban events and delivers formatted notification emails via SMTP.
 
 ## Features
 
@@ -14,7 +14,7 @@ SecBan Mailer is an alert dispatch daemon for the SecBan framework. It listens o
 
 ## Installation
 
-Pre-compiled release packages are published in the GitLab package registry.
+Pre-compiled release packages are published in the GitLab package registry: https://gitlab.com/secban/secban-mailer/-/releases/permalink/latest
 
 ### Download and Extract
 
