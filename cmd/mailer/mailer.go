@@ -20,7 +20,7 @@ func main() {
 
 	ctx := context.Background()
 
-	ipc.ListenUnixSocket(conf.SocketPath, func(msg ipc.IPCMessage) error {
+	ipc.ListenUnixSocket(conf.SocketPath, func(msg ipc.Message) error {
 		sendErr := mailer.Send(ctx, msg)
 		if sendErr != nil {
 			log.Error().Err(sendErr).Msg("failed to send email")

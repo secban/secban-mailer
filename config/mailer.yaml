@@ -4,7 +4,7 @@ smtp:
   host: localhost:1025
   password: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_PASSWORD
   username: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_USERNAME
-  # TLS policy: notsl, opportunistic, mandatory (default: opportunistic).
+  # TLS policy: notls, opportunistic, mandatory (default: opportunistic).
   tls: opportunistic
 socket_path: "/tmp/mailer.sock"
 template_file: ""

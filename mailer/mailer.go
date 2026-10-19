@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"os"
 	"text/template"
 
 	gomail "github.com/wneessen/go-mail"
@@ -61,7 +62,7 @@ func New(config MailerConfig) *Mailer {
 	}
 }
 
-func (m *Mailer) Send(ctx context.Context, msg ipc.IPCMessage) error {
+func (m *Mailer) Send(ctx context.Context, msg ipc.Message) error {
 	email := gomail.NewMsg()
 
 	fromErr := email.From(m.From)
@@ -74,10 +75,18 @@ func (m *Mailer) Send(ctx context.Context, msg ipc.IPCMessage) error {
 		return toErr
 	}
 
+	templateData := struct {
+		ipc.Message
+
+		Host string
+	}{Message: msg,
+		Host: os.Getenv("HOSTNAME"),
+	}
+
 	subject := fmt.Sprintf("SecBan [%s] %s", msg.Rule, msg.IP)
 	email.Subject(subject)
 
-	bodyErr := email.SetBodyTextTemplate(&m.Template, msg)
+	bodyErr := email.SetBodyTextTemplate(&m.Template, templateData)
 	if bodyErr != nil {
 		return bodyErr
 	}
@@ -110,7 +119,7 @@ func (m *Mailer) Send(ctx context.Context, msg ipc.IPCMessage) error {
 	return nil
 }
 
-func Send(ctx context.Context, msg ipc.IPCMessage) error {
+func Send(ctx context.Context, msg ipc.Message) error {
 	if mailerInstance == nil {
 		return ErrMailerNotInitialized
 	}

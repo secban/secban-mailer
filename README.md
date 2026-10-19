@@ -6,7 +6,7 @@ SecBan Mailer is an alert dispatch daemon for the [SecBan framework](https://git
 
 - IPC receiver via UNIX domain socket
 - SMTP email dispatch with authentication support (auto-discovery)
-- Configurable TLS policy (`notsl`, `opportunistic`, `mandatory`)
+- Configurable TLS policy (`notls`, `opportunistic`, `mandatory`)
 - Environment variable overrides for sensitive credentials (`SECBAN_MAILER_SMTP_USERNAME`, `SECBAN_MAILER_SMTP_PASSWORD`)
 - Customizable plain text email body via Go templates
 - CLI diagnostic tool (`secban-mailer-emailcheck`) to verify SMTP configuration and send test alerts
@@ -73,7 +73,7 @@ Main configuration file is located at `/etc/secban/mailer.yaml`.
 | `smtp.port` | integer | SMTP server port (default: `25`, overridden if port specified in `smtp.host`). |
 | `smtp.username` | string | SMTP authentication username (can also be set via `SECBAN_MAILER_SMTP_USERNAME`). |
 | `smtp.password` | string | SMTP authentication password (can also be set via `SECBAN_MAILER_SMTP_PASSWORD`). |
-| `smtp.tls` | string | TLS policy: `notsl` (disable TLS), `mandatory` (require STARTTLS), or `opportunistic` (STARTTLS if supported; default). |
+| `smtp.tls` | string | TLS policy: `notls` (disable TLS), `mandatory` (require STARTTLS), or `opportunistic` (STARTTLS if supported; default). |
 
 ## Examples
 

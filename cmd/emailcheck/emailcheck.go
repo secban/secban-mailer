@@ -40,8 +40,8 @@ func main() {
 	}
 }
 
-func dummy() ipc.IPCMessage {
-	return ipc.IPCMessage{
+func dummy() ipc.Message {
+	return ipc.Message{
 		IP:   "127.0.0.1",
 		Rule: "dummy-rule",
 		Offender: offender.Offender{

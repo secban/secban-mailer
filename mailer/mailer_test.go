@@ -16,11 +16,11 @@ import (
 	mailer "gitlab.com/secban/secban-mailer/mailer"
 )
 
-func TestBodyTemplateExecutesForIPCMessage(t *testing.T) {
+func TestBodyTemplateExecutesForMessage(t *testing.T) {
 	t.Parallel()
 
 	now := time.Now()
-	msg := ipc.IPCMessage{
+	msg := ipc.Message{
 		IP:   "127.0.0.1",
 		Rule: "dummy-rule",
 		Offender: offender.Offender{
@@ -202,7 +202,7 @@ func TestLoadConfigParsesTLSPolicies(t *testing.T) {
 		wantPolicy gomail.TLSPolicy
 	}{
 		{name: "notls", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: notls\n", wantPolicy: gomail.NoTLS},
-		{name: "notsl", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: notsl\n", wantPolicy: gomail.NoTLS},
+		{name: "notls", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: notls\n", wantPolicy: gomail.NoTLS},
 		{name: "mandatory", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: mandatory\n", wantPolicy: gomail.TLSMandatory},
 		{name: "opportunistic", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n  tls: opportunistic\n", wantPolicy: gomail.TLSOpportunistic},
 		{name: "empty defaults to opportunistic", yaml: "from: a@b.com\nsmtp:\n  host: localhost\n", wantPolicy: gomail.TLSOpportunistic},
