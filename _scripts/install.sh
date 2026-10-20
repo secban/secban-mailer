@@ -16,9 +16,9 @@ if ! getent group secban >/dev/null 2>&1; then
     groupadd --system secban
 fi
 
-# Create user for the secban-agent in the secban group.
-if ! id -u secban-mailer >/dev/null 2>&1; then
-    useradd --no-create-home --system --shell /sbin/nologin --gid secban secban-mailer
+# Create user for secban in the secban group.
+if ! id -u secban >/dev/null 2>&1; then
+    useradd --no-create-home --system --shell /sbin/nologin --gid secban secban
 fi
 
 # Install the secban-mailer binary.

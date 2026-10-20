@@ -4,7 +4,7 @@ After=network.target
 ConditionPathExists=/usr/sbin/secban-mailer
 
 [Service]
-User=secban-mailer
+User=secban
 Group=secban
 Type=exec
 ExecStart=/usr/sbin/secban-mailer

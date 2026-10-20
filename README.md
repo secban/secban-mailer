@@ -43,7 +43,7 @@ sudo ./install.sh
 ```
 
 The script performs the following steps:
-1. Creates `secban` system group and `secban-mailer` system user.
+1. Creates `secban` system group and `secban` system user.
 2. Installs daemon `/usr/sbin/secban-mailer`.
 3. Installs test utility `/usr/bin/secban-mailer-emailcheck`.
 4. Copies default configuration to `/etc/secban/mailer.yaml` (if not already present).
