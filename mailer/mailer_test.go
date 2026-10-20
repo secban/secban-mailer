@@ -30,12 +30,19 @@ func TestBodyTemplateExecutesForMessage(t *testing.T) {
 			},
 		},
 	}
+	templateData := struct {
+		ipc.Message
+
+		Host string
+	}{Message: msg,
+		Host: "dummy-host",
+	}
 
 	tmpl := mailer.DefaultTemplate()
 
 	var buf bytes.Buffer
 
-	err := tmpl.Execute(&buf, msg)
+	err := tmpl.Execute(&buf, templateData)
 	if err != nil {
 		t.Fatalf("template execution failed: %v", err)
 	}
