@@ -13,7 +13,7 @@ import (
 	"gitlab.com/secban/secban-agent/ipc"
 	"gitlab.com/secban/secban-agent/offender"
 	"gitlab.com/secban/secban-mailer/config"
-	mailer "gitlab.com/secban/secban-mailer/mailer"
+	"gitlab.com/secban/secban-mailer/mailer"
 )
 
 func TestBodyTemplateExecutesForMessage(t *testing.T) {
@@ -31,10 +31,10 @@ func TestBodyTemplateExecutesForMessage(t *testing.T) {
 		},
 	}
 	templateData := struct {
-		ipc.Message
-
 		Host string
-	}{Message: msg,
+		Bans []ipc.Message
+	}{
+		Bans: []ipc.Message{msg},
 		Host: "dummy-host",
 	}
 
@@ -93,7 +93,7 @@ func TestSMTPHostWithPortIsSplitIntoHostAndPort(t *testing.T) {
 func TestMailerNewUsesEmbeddedTemplateByDefault(t *testing.T) {
 	t.Parallel()
 
-	mailerInstance := mailer.New(mailer.MailerConfig{})
+	mailerInstance := mailer.New(mailer.Config{})
 	if mailerInstance.Template.Name() != "body" {
 		t.Fatalf("template name = %q, want body", mailerInstance.Template.Name())
 	}
@@ -249,7 +249,7 @@ func assertLoadConfigTLSPolicy(t *testing.T, yamlContent string, wantPolicy goma
 func TestMailerNewStoresTLSPolicy(t *testing.T) {
 	t.Parallel()
 
-	mailerInstance := mailer.New(mailer.MailerConfig{
+	mailerInstance := mailer.New(mailer.Config{
 		SMTP: mailer.SMTPConfig{
 			TLSPolicy: gomail.TLSOpportunistic,
 		},

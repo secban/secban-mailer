@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"errors"
-	"fmt"
 	"os"
 	"text/template"
 
@@ -15,15 +14,15 @@ import (
 //go:embed body.tpl
 var bodyTemplate string
 
-var mailerInstance *Mailer //nolint: gochecknoglobals
+var mailerInstance *Mailer //nolint:gochecknoglobals
 
 var ErrMailerNotInitialized = errors.New("mailer not initialized")
 
 type SMTPConfig struct {
 	Host      string
-	Port      int
 	Username  string
 	Password  string
+	Port      int
 	TLSPolicy gomail.TLSPolicy
 }
 
@@ -34,14 +33,14 @@ type Mailer struct {
 	SMTP     SMTPConfig
 }
 
-type MailerConfig struct {
+type Config struct {
 	Template template.Template
-	SMTP     SMTPConfig
 	From     string
 	To       []string
+	SMTP     SMTPConfig
 }
 
-func Init(config MailerConfig) {
+func Init(config Config) {
 	mailerInstance = New(config)
 }
 
@@ -49,7 +48,7 @@ func DefaultTemplate() template.Template {
 	return *template.Must(template.New("body").Parse(bodyTemplate))
 }
 
-func New(config MailerConfig) *Mailer {
+func New(config Config) *Mailer {
 	if config.Template == (template.Template{}) {
 		config.Template = DefaultTemplate()
 	}
@@ -63,34 +62,68 @@ func New(config MailerConfig) *Mailer {
 }
 
 func (m *Mailer) Send(ctx context.Context, msg ipc.Message) error {
+	return m.SendGroup(ctx, []ipc.Message{msg})
+}
+
+func (m *Mailer) SendGroup(_ context.Context, bans []ipc.Message) error {
+	if len(bans) == 0 {
+		return nil
+	}
+
+	email, buildErr := m.buildEmail(bans)
+	if buildErr != nil {
+		return buildErr
+	}
+
+	client, clientErr := m.buildClient()
+	if clientErr != nil {
+		return clientErr
+	}
+
+	sendErr := client.DialAndSend(email)
+	if sendErr != nil {
+		return sendErr
+	}
+
+	return nil
+}
+
+func (m *Mailer) buildEmail(bans []ipc.Message) (*gomail.Msg, error) {
 	email := gomail.NewMsg()
 
 	fromErr := email.From(m.From)
 	if fromErr != nil {
-		return fromErr
+		return nil, fromErr
 	}
 
 	toErr := email.To(m.To...)
 	if toErr != nil {
-		return toErr
+		return nil, toErr
 	}
+
+	hostname := os.Getenv("HOSTNAME")
 
 	templateData := struct {
-		ipc.Message
-
 		Host string
-	}{Message: msg,
-		Host: os.Getenv("HOSTNAME"),
+		Bans []ipc.Message
+	}{
+		Bans: bans,
+		Host: hostname,
 	}
 
-	subject := fmt.Sprintf("SecBan [%s] %s", msg.Rule, msg.IP)
+	subject := "SecBan report from " + hostname
+
 	email.Subject(subject)
 
 	bodyErr := email.SetBodyTextTemplate(&m.Template, templateData)
 	if bodyErr != nil {
-		return bodyErr
+		return nil, bodyErr
 	}
 
+	return email, nil
+}
+
+func (m *Mailer) buildClient() (*gomail.Client, error) {
 	clientOptions := []gomail.Option{
 		gomail.WithTLSPolicy(m.SMTP.TLSPolicy),
 	}
@@ -106,17 +139,7 @@ func (m *Mailer) Send(ctx context.Context, msg ipc.Message) error {
 		clientOptions = append(clientOptions, gomail.WithPort(m.SMTP.Port))
 	}
 
-	client, clientErr := gomail.NewClient(m.SMTP.Host, clientOptions...)
-	if clientErr != nil {
-		return clientErr
-	}
-
-	sendErr := client.DialAndSend(email)
-	if sendErr != nil {
-		return sendErr
-	}
-
-	return nil
+	return gomail.NewClient(m.SMTP.Host, clientOptions...)
 }
 
 func Send(ctx context.Context, msg ipc.Message) error {
@@ -125,4 +148,12 @@ func Send(ctx context.Context, msg ipc.Message) error {
 	}
 
 	return mailerInstance.Send(ctx, msg)
+}
+
+func SendGroup(ctx context.Context, bans []ipc.Message) error {
+	if mailerInstance == nil {
+		return ErrMailerNotInitialized
+	}
+
+	return mailerInstance.SendGroup(ctx, bans)
 }

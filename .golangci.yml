@@ -2,10 +2,14 @@ linters:
   default: all
   disable:
     - depguard # We have few imports.
+    - err113 # Too much refactoring. To be revisited.
     - exhaustruct # We do not want to enforce exhaustive struct checks.
     - exhaustruct_v5
+    - goconst # A bit too eager.
     - gomodguard # deprecated
     - lll # Line length lint, not able to ignore functions declarations.
+    - nlreturn # Newline return lint, not to my taste.
+    - prealloc # Readability trade-off, not enforcing preallocation.
     - tagliatelle # We do not want camel case for json.
     - wrapcheck # To revisit later.
     - wsl # Replaced by wsl_v5
@@ -24,6 +28,7 @@ linters:
       # Exclude some linters from running on tests files.
       - linters:
           - forbidigo
+          - funlen
           - gochecknoglobals
           - gocognit
           - goconst
@@ -36,12 +41,25 @@ linters:
         path: _test\.go$
 
   settings:
+    govet:
+      enable-all: true
     revive:
+      enable-all-rules: true
       rules:
-        - disabled: true
-          name: package-comments
-        - disabled: true
-          name: exported
+        - name: add-constant
+          arguments:
+            - maxLitCount: "3"
+              allowInts: "0,1,2"
+              allowStrs: '"","add","update","delete"'
+          exclude:
+            - "**/*_test.go"
+        - name: cognitive-complexity
+          arguments:
+            - 14
+          exclude:
+            - "**/*_test.go"
+        - name: line-length-limit
+          disabled: true
     varnamelen:
       ignore-decls:
         - ctx context.Context

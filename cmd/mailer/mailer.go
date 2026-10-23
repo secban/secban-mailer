@@ -20,10 +20,17 @@ func main() {
 
 	ctx := context.Background()
 
+	reporter := mailer.NewReporter(conf)
+
+	reporterInitErr := reporter.Init(ctx)
+	if reporterInitErr != nil {
+		log.Fatal().Err(reporterInitErr).Msg("failed to initialize reporter")
+	}
+
 	listenErr := ipc.ListenUnixSocket(conf.SocketPath, func(msg ipc.Message) error {
-		sendErr := mailer.Send(ctx, msg)
-		if sendErr != nil {
-			log.Error().Err(sendErr).Msg("failed to send email")
+		handleErr := reporter.HandleBan(ctx, msg)
+		if handleErr != nil {
+			log.Error().Err(handleErr).Msg("failed to handle ban report")
 		}
 
 		return nil
@@ -35,8 +42,9 @@ func main() {
 
 func loadConf() *config.Config {
 	var configDir string
-
+	//nolint:revive,nolintlint // Not a real deep-exit, extracted from main for readability.
 	flag.StringVar(&configDir, "config", "/etc/secban", "path to config directory")
+	//nolint:revive,nolintlint // Not a real deep-exit, extracted from main for readability.
 	flag.Parse()
 
 	conf, confErr := config.LoadConfig(configDir)
@@ -48,7 +56,7 @@ func loadConf() *config.Config {
 }
 
 func initMailer(conf *config.Config) {
-	mailer.Init(mailer.MailerConfig{
+	mailer.Init(mailer.Config{
 		Template: conf.Template,
 		SMTP: mailer.SMTPConfig{
 			Host:      conf.SMTP.Host,

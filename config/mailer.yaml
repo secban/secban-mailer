@@ -1,13 +1,15 @@
 from: example@example.com
-log_level: debug
+log_level: info
 smtp:
   host: localhost:1025
   password: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_PASSWORD
   username: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_USERNAME
   # TLS policy: notls, opportunistic, mandatory (default: opportunistic).
   tls: opportunistic
-socket_path: "/tmp/mailer.sock"
+socket_path: "/var/run/secban/mailer.sock"
 template_file: ""
 to:
   - recipient@example.com
   - anotherrecipient@example.com
+frequency: 2h
+threshold: 10

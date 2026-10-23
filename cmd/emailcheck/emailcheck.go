@@ -21,7 +21,7 @@ func main() {
 		Str("tls", conf.SMTP.TLSPolicy.String()).
 		Msg("configuration loaded")
 
-	mailer.Init(mailer.MailerConfig{
+	mailer.Init(mailer.Config{
 		Template: conf.Template,
 		SMTP: mailer.SMTPConfig{
 			Host:      conf.SMTP.Host,
@@ -58,8 +58,9 @@ func dummy() ipc.Message {
 
 func loadConf() *config.Config {
 	var configDir string
-
+	//nolint:revive,nolintlint // Not a real deep-exit, just extracted from main for readability.
 	flag.StringVar(&configDir, "config", "/etc/secban", "path to config directory")
+	//nolint:revive,nolintlint
 	flag.Parse()
 
 	conf, confErr := config.LoadConfig(configDir)

@@ -1,12 +1,14 @@
 package config
 
 import (
+	"errors"
 	"net"
 	"os"
 	"path"
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/rs/zerolog"
 	gomail "github.com/wneessen/go-mail"
@@ -17,39 +19,53 @@ const (
 	fileName = "mailer.yaml"
 )
 
+var (
+	ErrDatabaseRequired   = errors.New("database path required when frequency or threshold is set")
+	ErrNegativeFrequency  = errors.New("frequency cannot be negative")
+	ErrStateFileRequired  = errors.New("state file required when frequency or threshold is set")
+)
+
 type ParsedSMTPConfig struct {
 	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	TLS      string `yaml:"tls"`
+	Port     int    `yaml:"port"`
 }
 
 type ParsedConfig struct {
-	From         string           `yaml:"from"`
 	SMTP         ParsedSMTPConfig `yaml:"smtp"`
-	To           []string         `yaml:"to"`
+	From         string           `yaml:"from"`
 	LogLevel     string           `yaml:"log_level"`
 	TemplateFile string           `yaml:"template_file"`
 	SocketPath   string           `yaml:"socket_path"`
+	Database     string           `yaml:"database"`
+	StateFile    string           `yaml:"state_file"`
+	Frequency    string           `yaml:"frequency"`
+	To           []string         `yaml:"to"`
+	Threshold    int              `yaml:"threshold"`
 }
 
 type SMTPConfig struct {
 	Host      string
-	Port      int
 	Username  string
 	Password  string
 	TLS       string
+	Port      int
 	TLSPolicy gomail.TLSPolicy
 }
 
 type Config struct {
-	From       string
-	SMTP       SMTPConfig
-	To         []string
-	LogLevel   zerolog.Level
 	Template   template.Template
+	From       string
 	SocketPath string
+	Database   string
+	StateFile  string
+	To         []string
+	SMTP       SMTPConfig
+	Frequency  time.Duration
+	Threshold  int
+	LogLevel   zerolog.Level
 }
 
 func LoadConfig(configDir string) (*Config, error) {
@@ -71,6 +87,16 @@ func LoadConfig(configDir string) (*Config, error) {
 		return nil, tmplErr
 	}
 
+	freq, parseFreqErr := parseFrequency(parsed.Frequency)
+	if parseFreqErr != nil {
+		return nil, parseFreqErr
+	}
+
+	validateErr := validateReporting(parsed, freq)
+	if validateErr != nil {
+		return nil, validateErr
+	}
+
 	return &Config{
 		From:       parsed.From,
 		SMTP:       smtpCfg,
@@ -78,7 +104,45 @@ func LoadConfig(configDir string) (*Config, error) {
 		SocketPath: parsed.SocketPath,
 		LogLevel:   logLevel,
 		Template:   tmpl,
+		Database:   parsed.Database,
+		StateFile:  parsed.StateFile,
+		Frequency:  freq,
+		Threshold:  parsed.Threshold,
 	}, nil
+}
+
+func validateReporting(parsed *ParsedConfig, freq time.Duration) error {
+	if freq <= 0 && parsed.Threshold <= 0 {
+		return nil
+	}
+
+	if parsed.Database == "" {
+		return ErrDatabaseRequired
+	}
+
+	if parsed.StateFile == "" {
+		return ErrStateFileRequired
+	}
+
+	return nil
+}
+
+func parseFrequency(raw string) (time.Duration, error) {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" || trimmed == "0" {
+		return 0, nil
+	}
+
+	duration, parseErr := time.ParseDuration(trimmed)
+	if parseErr != nil {
+		return 0, parseErr
+	}
+
+	if duration < 0 {
+		return 0, ErrNegativeFrequency
+	}
+
+	return duration, nil
 }
 
 func applyEnvOverrides(cfg *SMTPConfig) {
