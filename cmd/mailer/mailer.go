@@ -7,11 +7,14 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/version"
 	"gitlab.com/secban/secban-mailer/config"
 	"gitlab.com/secban/secban-mailer/mailer"
 )
 
 func main() {
+	version.CLI()
+
 	conf := loadConf()
 
 	zerolog.SetGlobalLevel(conf.LogLevel)

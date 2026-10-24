@@ -7,6 +7,7 @@ smtp:
   # TLS policy: notls, opportunistic, mandatory (default: opportunistic).
   tls: opportunistic
 socket_path: "/var/run/secban/mailer.sock"
+state_file: /var/run/secban/mailer_report
 template_file: ""
 to:
   - recipient@example.com

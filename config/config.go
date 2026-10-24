@@ -12,7 +12,7 @@ import (
 
 	"github.com/rs/zerolog"
 	gomail "github.com/wneessen/go-mail"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 const (

@@ -5,8 +5,8 @@ go 1.27.0
 require (
 	github.com/rs/zerolog v1.35.1
 	github.com/wneessen/go-mail v0.8.1
-	gitlab.com/secban/secban-agent v0.0.7
-	gopkg.in/yaml.v2 v2.4.0
+	gitlab.com/secban/secban-agent v0.0.8
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
