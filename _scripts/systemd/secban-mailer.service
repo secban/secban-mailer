@@ -15,8 +15,8 @@ StandardError=journal
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
-ReadWritePaths=/var/run/secban
-ReadOnlyPaths=/etc/secban /var/lib/secban
+ReadWritePaths=/var/run/secban /var/lib/secban
+ReadOnlyPaths=/etc/secban
 
 [Install]
 WantedBy=multi-user.target
