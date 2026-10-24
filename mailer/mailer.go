@@ -101,7 +101,7 @@ func (m *Mailer) buildEmail(bans []ipc.Message) (*gomail.Msg, error) {
 		return nil, toErr
 	}
 
-	hostname := os.Getenv("HOSTNAME")
+	hostname := getHostname()
 
 	templateData := struct {
 		Host string
@@ -156,4 +156,13 @@ func SendGroup(ctx context.Context, bans []ipc.Message) error {
 	}
 
 	return mailerInstance.SendGroup(ctx, bans)
+}
+
+func getHostname() string {
+	hostname, hostErr := os.Hostname()
+	if hostErr != nil {
+		return "unknown"
+	}
+
+	return hostname
 }
