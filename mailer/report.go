@@ -203,7 +203,8 @@ func parseOffender(entry *banlog.Entry) offender.Offender {
 	if entry.Events == "" {
 		return offender.Offender{
 			IP:        entry.IP,
-			Timestamp: entry.Ban,
+			Timestamp: entry.BanTime,
+			BanCount:  entry.BanCount,
 		}
 	}
 
@@ -215,7 +216,8 @@ func parseOffender(entry *banlog.Entry) offender.Offender {
 
 		return offender.Offender{
 			IP:        entry.IP,
-			Timestamp: entry.Ban,
+			Timestamp: entry.BanTime,
+			BanCount:  entry.BanCount,
 		}
 	}
 
