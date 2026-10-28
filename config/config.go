@@ -12,7 +12,7 @@ import (
 
 	"github.com/rs/zerolog"
 	gomail "github.com/wneessen/go-mail"
-	"go.yaml.in/yaml/v3"
+	"gitlab.com/secban/secban-agent/configloader"
 )
 
 const (
@@ -26,24 +26,24 @@ var (
 )
 
 type ParsedSMTPConfig struct {
-	Host     string `yaml:"host"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	TLS      string `yaml:"tls"`
-	Port     int    `yaml:"port"`
+	Host     string `koanf:"host"`
+	Username string `koanf:"username"`
+	Password string `koanf:"password"`
+	TLS      string `koanf:"tls"`
+	Port     int    `koanf:"port"`
 }
 
 type ParsedConfig struct {
-	SMTP         ParsedSMTPConfig `yaml:"smtp"`
-	From         string           `yaml:"from"`
-	LogLevel     string           `yaml:"log_level"`
-	TemplateFile string           `yaml:"template_file"`
-	SocketPath   string           `yaml:"socket_path"`
-	Database     string           `yaml:"database"`
-	StateFile    string           `yaml:"state_file"`
-	Frequency    string           `yaml:"frequency"`
-	To           []string         `yaml:"to"`
-	Threshold    int              `yaml:"threshold"`
+	SMTP         ParsedSMTPConfig `koanf:"smtp"`
+	From         string           `koanf:"from"`
+	LogLevel     string           `koanf:"log_level"`
+	TemplateFile string           `koanf:"template_file"`
+	SocketPath   string           `koanf:"socket_path"`
+	Database     string           `koanf:"database"`
+	StateFile    string           `koanf:"state_file"`
+	Frequency    string           `koanf:"frequency"`
+	To           []string         `koanf:"to"`
+	Threshold    int              `koanf:"threshold"`
 }
 
 type SMTPConfig struct {
@@ -173,16 +173,9 @@ func loadTemplate(configDir string, templateFile string) (template.Template, err
 func parseConfig(configDir string) (*ParsedConfig, error) {
 	mainConfigPath := path.Join(configDir, fileName)
 
-	var parsed ParsedConfig
-
-	configData, readErr := os.ReadFile(mainConfigPath)
-	if readErr != nil {
-		return nil, readErr
-	}
-
-	decodeErr := yaml.Unmarshal(configData, &parsed)
-	if decodeErr != nil {
-		return nil, decodeErr
+	parsed, parseErr := configloader.ParseConfig(defaultParsedConfig(), mainConfigPath, nil)
+	if parseErr != nil {
+		return nil, parseErr
 	}
 
 	return &parsed, nil
