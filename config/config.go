@@ -34,6 +34,7 @@ type ParsedSMTPConfig struct {
 }
 
 type ParsedConfig struct {
+	Profiler     string           `koanf:"profiler"`
 	SMTP         ParsedSMTPConfig `koanf:"smtp"`
 	From         string           `koanf:"from"`
 	LogLevel     string           `koanf:"log_level"`
@@ -59,6 +60,7 @@ type Config struct {
 	Template   template.Template
 	From       string
 	SocketPath string
+	Profiler   string
 	Database   string
 	StateFile  string
 	To         []string
@@ -102,6 +104,7 @@ func LoadConfig(configDir string) (*Config, error) {
 		SMTP:       smtpCfg,
 		To:         parsed.To,
 		SocketPath: parsed.SocketPath,
+		Profiler:   parsed.Profiler,
 		LogLevel:   logLevel,
 		Template:   tmpl,
 		Database:   parsed.Database,

@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/profiler"
 	"gitlab.com/secban/secban-agent/version"
 	"gitlab.com/secban/secban-mailer/config"
 	"gitlab.com/secban/secban-mailer/mailer"
@@ -23,12 +24,18 @@ func main() {
 
 	ctx := context.Background()
 
+	if conf.Profiler != "" {
+		go profiler.Listen(ctx, conf.Profiler)
+	}
+
 	reporter := mailer.NewReporter(conf)
 
 	reporterInitErr := reporter.Init(ctx)
 	if reporterInitErr != nil {
 		log.Fatal().Err(reporterInitErr).Msg("failed to initialize reporter")
 	}
+
+	log.Info().Msg("starting mailer")
 
 	listenErr := ipc.ListenUnixSocket(conf.SocketPath, func(msg ipc.Message) error {
 		handleErr := reporter.HandleBan(ctx, msg)
