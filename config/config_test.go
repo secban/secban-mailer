@@ -61,6 +61,7 @@ func TestConfigRequiresDatabaseWhenFrequencySet(t *testing.T) {
 		"from: test@example.com\n" +
 			"frequency: 1h\n" +
 			"state_file: /tmp/mailer.state\n" +
+			"database: ''\n" +
 			"smtp:\n  host: localhost\n",
 	)
 
@@ -85,6 +86,7 @@ func TestConfigRequiresStateFileWhenThresholdSet(t *testing.T) {
 		"from: test@example.com\n" +
 			"database: /tmp/test.sqlite\n" +
 			"threshold: 5\n" +
+			"state_file: ''\n" +
 			"smtp:\n  host: localhost\n",
 	)
 
