@@ -1,0 +1,46 @@
+# Sender name.
+from: secban
+
+# Recipients email addresses.
+to: []
+# to:
+#   - recipient@example.com
+#   - anotherrecipient@example.com
+
+# SMTP server configuration.
+smtp:
+  host: localhost:25
+  password: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_PASSWORD
+  username: "" # Can be specified in the environment variable SECBAN_MAILER_SMTP_USERNAME
+  # TLS policy: notls, opportunistic, mandatory (default: opportunistic).
+  tls: opportunistic
+
+# Frequency and threshold for sending emails. If both are empty, emails will be sent immediately when an event occurs.
+# If both are set, the first condition to be met will trigger the email.
+# Frequency groups events together and sends them after the specified interval has elapsed. Note that emails are triggered
+# on ban events, so emails may be sent later if no events occur.
+frequency: ""
+# frequency: "2h"
+# Threshold specifies the minimum number of events that must occur before an email is sent.
+threshold: 0
+
+# Socket path for the mailer. This needs to be added to the secban agent configuration at /etc/secban/agent.yaml.
+socket_path: "/var/run/secban/mailer.sock"
+
+# State file for the mailer. Used to keep track of last report sent when frequency or threshold conditions are met.
+state_file: /var/run/secban/mailer_report
+
+# Agent database for the ban events.
+# This is used when frequency or threshold conditions are specified to keep track of the events.
+database: "/var/lib/secban/agent.sqlite"
+
+# Template file for the mailer. This is a go template used to format the email content.
+# See https://gitlab.com/secban/secban-mailer/-/blob/main/mailer/body.tpl?ref_type=heads for the default template.
+template_file: ""
+
+# Log level for the mailer. Possible values are: debug, info, warn, error.
+log_level: "info"
+
+# Profiler endpoint. Set to an empty value to disable. PPROF information will be at /debug/pprof/.
+profiler: ""
+# profiler: localhost:6062

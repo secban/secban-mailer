@@ -176,7 +176,7 @@ func loadTemplate(configDir string, templateFile string) (template.Template, err
 func parseConfig(configDir string) (*ParsedConfig, error) {
 	mainConfigPath := path.Join(configDir, fileName)
 
-	parsed, parseErr := configloader.ParseConfig(defaultParsedConfig(), mainConfigPath, nil)
+	parsed, parseErr := configloader.ParseConfig(DefaultParsedConfig(), mainConfigPath, nil)
 	if parseErr != nil {
 		return nil, parseErr
 	}
