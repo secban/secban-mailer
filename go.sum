@@ -44,8 +44,8 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/wneessen/go-mail v0.8.1 h1:tVcncj02/QySVFw3zr/kXOzZcuFQqBNT6K+Rbgm/pcM=
 github.com/wneessen/go-mail v0.8.1/go.mod h1:dWZ61zadzCIyvB4y1/YzC5O7MrbbzBfPkARmbosdf8w=
-gitlab.com/secban/secban-agent v0.0.12 h1:C7aAFkFOhO8CPQDMIef8K6xlhSA+Wt71fEPMVt5i5VQ=
-gitlab.com/secban/secban-agent v0.0.12/go.mod h1:xEZARlil4zN/BEsufgrRpCilrX67OAJLv+NCsI+FGcQ=
+gitlab.com/secban/secban-agent v0.0.13 h1:EdMofmtn/7BEqv54yPe2U50WRtijCpFocWjhfozJ5VY=
+gitlab.com/secban/secban-agent v0.0.13/go.mod h1:5sl7D3vBoBzKwffNEgjtSSGMYTXBs361pq2+flaXR30=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/crypto v0.58.0 h1:COkYLr4k7nDI4r6QtMML2AfzeIswWHAJthLS6K/M/54=

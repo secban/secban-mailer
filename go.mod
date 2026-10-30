@@ -5,7 +5,7 @@ go 1.27.0
 require (
 	github.com/rs/zerolog v1.35.1
 	github.com/wneessen/go-mail v0.8.1
-	gitlab.com/secban/secban-agent v0.0.12
+	gitlab.com/secban/secban-agent v0.0.13
 )
 
 require (
